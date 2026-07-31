@@ -115,7 +115,7 @@
   .runbtn:hover{filter:brightness(1.08)}.runbtn:active{transform:scale(.96)}
   .runbtn:disabled{opacity:.6;cursor:default}
   .respmeta{display:flex;align-items:center;gap:12px;margin:14px 0 8px;font-family:var(--mono);font-size:11.5px;color:var(--dim);min-height:18px}
-  .status-ok{color:var(--buy)}.status-ok::before{content:"â— "}
+  .status-ok{color:var(--buy)}.status-ok::before{content:"● "}
   pre.resp{margin:0;background:#0c0c0c;border:1px solid var(--border);border-radius:10px;padding:14px 16px;
     font-family:var(--mono);font-size:12.5px;line-height:1.65;color:#cfcfcf;overflow-x:auto;min-height:230px;white-space:pre-wrap;word-break:break-word}
   .resp .k{color:#7fb4ff}.resp .s{color:#c7e59a}.resp .n{color:#ffcf7a}.resp .b{color:#c792ea}
@@ -204,7 +204,7 @@
   .price .amt small{font-size:14px;color:var(--dim);font-weight:400}
   .price .q{font-size:13px;color:var(--muted);margin-bottom:8px}
   .price ul{list-style:none;padding:0;margin:6px 0 16px;display:flex;flex-direction:column;gap:8px;font-size:13.5px;color:var(--muted)}
-  .price li::before{content:"â†’ ";color:var(--accent)}
+  .price li::before{content:"→ ";color:var(--accent)}
   .price .btn{margin-top:auto;justify-content:center}
   .badge{position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:var(--accent);color:#0A0A0A;font-size:10.5px;font-weight:700;font-family:var(--mono);letter-spacing:.08em;padding:3px 11px;border-radius:100px;text-transform:uppercase}
 
@@ -257,17 +257,17 @@
 <section class="hero">
   <div class="wrap hero-grid">
     <div>
-      <span class="pill"><span class="dot"></span> SEC EDGAR API Â· built for AI agents</span>
+      <span class="pill"><span class="dot"></span> SEC EDGAR API · built for AI agents</span>
       <h1>SEC filings your <span class="hl">AI agent</span> can actually read.</h1>
-      <p class="sub">One call returns clean, structured JSON from 20M+ SEC EDGAR filings â€” plus an <b style="color:var(--text)">insider-conviction score</b> no other API gives you. Drop it straight into Claude, GPT, or any RAG pipeline. No XBRL parsing, no walls of XML.</p>
+      <p class="sub">One call returns clean, structured JSON from 20M+ SEC EDGAR filings — plus an <b style="color:var(--text)">insider-conviction score</b> no other API gives you. Drop it straight into Claude, GPT, or any RAG pipeline. No XBRL parsing, no walls of XML.</p>
       <div class="cta">
-        <a href="#pricing" class="btn btn-primary btn-lg" id="magnet">Get your API key â†’</a>
-        <a href="https://sec-intel-api.onrender.com/docs" target="_blank" rel="noopener" class="btn btn-ghost btn-lg">Try it live â€” free â–¸</a>
+        <a href="#pricing" class="btn btn-primary btn-lg" id="magnet">Get your API key →</a>
+        <a href="https://sec-intel-api.onrender.com/docs" target="_blank" rel="noopener" class="btn btn-ghost btn-lg">Try it live — free ▸</a>
       </div>
       <div class="trustline">
-        <span><span class="check">âœ¦</span> <b>Official SEC data</b> (public domain)</span>
-        <span><span class="check">âœ¦</span> <b>Keyless-simple JSON</b></span>
-        <span><span class="check">âœ¦</span> <b>Free tier, no card</b></span>
+        <span><span class="check">✦</span> <b>Official SEC data</b> (public domain)</span>
+        <span><span class="check">✦</span> <b>Keyless-simple JSON</b></span>
+        <span><span class="check">✦</span> <b>Free tier, no card</b></span>
       </div>
     </div>
 
@@ -275,18 +275,18 @@
     <div class="term rev">
       <div class="term-bar">
         <span class="tdot t1"></span><span class="tdot t2"></span><span class="tdot t3"></span>
-        <span class="path">GET /company â€” SEC Intel API</span>
+        <span class="path">GET /company — SEC Intel API</span>
       </div>
       <div class="term-body">
         <div class="req">
           <span class="method">GET</span>
           <span class="url">/company?query=</span>
           <input class="tickin" id="tick" value="AAPL" maxlength="6" spellcheck="false" aria-label="ticker">
-          <button class="runbtn" id="run">â–¸ Run</button>
+          <button class="runbtn" id="run">▸ Run</button>
         </div>
         <div class="respmeta" id="meta"></div>
-        <pre class="resp" id="out">Press <span style="color:var(--accent)">Run</span> to fetch a live sample responseâ€¦</pre>
-        <div class="hint">â†‘ Try AAPL, MSFT, NVDA, TSLA â€” illustrative sample. Real queries return live SEC data with your key.</div>
+        <pre class="resp" id="out">Press <span style="color:var(--accent)">Run</span> to fetch a live sample response…</pre>
+        <div class="hint">↑ Try AAPL, MSFT, NVDA, TSLA — illustrative sample. Real queries return live SEC data with your key.</div>
       </div>
     </div>
   </div>
@@ -295,9 +295,9 @@
 <!-- STAT STRIP -->
 <div class="strip"><div class="wrap"><div class="stats">
   <div class="stat rev"><div class="num" data-to="20" data-suf="M+">0</div><div class="lbl">SEC EDGAR filings</div></div>
-  <div class="stat rev"><div class="num" data-pre="" data-to="1993" data-raw="1">1993</div><div class="lbl">Coverage since â†’ today</div></div>
+  <div class="stat rev"><div class="num" data-pre="" data-to="1993" data-raw="1">1993</div><div class="lbl">Coverage since → today</div></div>
   <div class="stat rev"><div class="num"><span class="u">&lt;</span><span data-to="1" data-suf="s">0</span></div><div class="lbl">Warm response time</div></div>
-  <div class="stat rev"><div class="num" data-to="100" data-suf="">0</div><div class="lbl">Insider conviction (0â€“100)</div></div>
+  <div class="stat rev"><div class="num" data-to="100" data-suf="">0</div><div class="lbl">Insider conviction (0–100)</div></div>
 </div></div></div>
 
 <!-- WHY / COMPARISON -->
@@ -306,27 +306,27 @@
     <div class="sechead rev">
       <span class="eyebrow">The gap nobody filled</span>
       <h2>Everyone else built SEC data for analysts. We built it for machines.</h2>
-      <p>The incumbents ship raw XBRL, CSV exports and Excel add-ons â€” great for a human with a spreadsheet, hostile to an LLM. Here's the difference on the same data.</p>
+      <p>The incumbents ship raw XBRL, CSV exports and Excel add-ons — great for a human with a spreadsheet, hostile to an LLM. Here's the difference on the same data.</p>
     </div>
     <div class="cmp">
       <div class="cmp-card them rev">
         <h3>Traditional SEC APIs</h3>
         <ul>
-          <li><span class="ic">âœ•</span> Raw XBRL / XML you must parse yourself</li>
-          <li><span class="ic">âœ•</span> Docs are walls of SEO text, not for developers</li>
-          <li><span class="ic">âœ•</span> Zero AI / LLM / RAG positioning or examples</li>
-          <li><span class="ic">âœ•</span> Give you data â€” never a <i>signal</i></li>
-          <li><span class="ic">âœ•</span> From $49â€“$239 / month</li>
+          <li><span class="ic">✕</span> Raw XBRL / XML you must parse yourself</li>
+          <li><span class="ic">✕</span> Docs are walls of SEO text, not for developers</li>
+          <li><span class="ic">✕</span> Zero AI / LLM / RAG positioning or examples</li>
+          <li><span class="ic">✕</span> Give you data — never a <i>signal</i></li>
+          <li><span class="ic">✕</span> From $49–$239 / month</li>
         </ul>
       </div>
       <div class="cmp-card us rev">
         <h3>SEC Intel API</h3>
         <ul>
-          <li><span class="ic">âœ“</span> Clean, flat JSON â€” ready for function-calling &amp; RAG</li>
-          <li><span class="ic">âœ“</span> One call: financials, filings, insider activity</li>
-          <li><span class="ic">âœ“</span> Built &amp; documented for Claude / GPT pipelines</li>
-          <li><span class="ic">âœ“</span> Exclusive <b>insider-conviction score</b> (0â€“100)</li>
-          <li><span class="ic">âœ“</span> Free tier Â· Pro from <b>$29 / month</b></li>
+          <li><span class="ic">✓</span> Clean, flat JSON — ready for function-calling &amp; RAG</li>
+          <li><span class="ic">✓</span> One call: financials, filings, insider activity</li>
+          <li><span class="ic">✓</span> Built &amp; documented for Claude / GPT pipelines</li>
+          <li><span class="ic">✓</span> Exclusive <b>insider-conviction score</b> (0–100)</li>
+          <li><span class="ic">✓</span> Free tier · Pro from <b>$29 / month</b></li>
         </ul>
       </div>
     </div>
@@ -338,31 +338,31 @@
   <div class="wrap">
     <div class="sechead rev">
       <span class="eyebrow">What you get</span>
-      <h2>Everything an agent needs from SEC EDGAR â€” in one endpoint set.</h2>
+      <h2>Everything an agent needs from SEC EDGAR — in one endpoint set.</h2>
     </div>
     <div class="bento">
       <div class="card wide rev">
-        <div class="kx">/company Â· /financials</div>
+        <div class="kx">/company · /financials</div>
         <h3>Structured financials, no XBRL pain</h3>
         <p>Revenue, net income, EPS, margins and history parsed straight from official XBRL into flat JSON keys your model can reason over. No schema archaeology.</p>
       </div>
       <div class="card rev">
         <div class="kx">/insider</div>
         <h3>Form 3/4/5 parsed</h3>
-        <p>Every insider buy &amp; sell as clean JSON â€” no XML scraping, with acquisition/disposition flags and prices.</p>
+        <p>Every insider buy &amp; sell as clean JSON — no XML scraping, with acquisition/disposition flags and prices.</p>
       </div>
       <div class="card rev">
         <div class="kx">exclusive</div>
         <h3>Insider-conviction score</h3>
-        <p>We turn raw Form 4 noise into a 0â€“100 signal: cluster size, C-suite weight, buy dominance. Nobody else ships this.</p>
+        <p>We turn raw Form 4 noise into a 0–100 signal: cluster size, C-suite weight, buy dominance. Nobody else ships this.</p>
       </div>
       <div class="card rev">
-        <div class="kx">/filings Â· /search</div>
+        <div class="kx">/filings · /search</div>
         <h3>Full-text filing search</h3>
-        <p>Find 10-K, 10-Q, 8-K and more by ticker, CIK or keyword â€” with the fields an agent actually needs.</p>
+        <p>Find 10-K, 10-Q, 8-K and more by ticker, CIK or keyword — with the fields an agent actually needs.</p>
       </div>
       <div class="card rev">
-        <div class="kx">/latest Â· /insider-signals</div>
+        <div class="kx">/latest · /insider-signals</div>
         <h3>Market-wide live feeds</h3>
         <p>Stream the latest filings and insider-buying signals across the whole market for alerts and screeners.</p>
       </div>
@@ -376,15 +376,15 @@
     <div class="conv-wrap rev">
       <div>
         <span class="eyebrow">The differentiator</span>
-        <h2 style="font-size:clamp(24px,3vw,34px);margin-top:12px">From raw Form 4 noise â†’ one number your agent can act on.</h2>
-        <p class="muted" style="margin-top:14px">Ten insiders each filed a Form 4 last week. Which company are they betting on? Our <b style="color:var(--accent)">conviction_score</b> weighs cluster size, C-suite involvement and buy-vs-sell dominance into a single 0â€“100 signal â€” so your agent reads intent, not XML.</p>
+        <h2 style="font-size:clamp(24px,3vw,34px);margin-top:12px">From raw Form 4 noise → one number your agent can act on.</h2>
+        <p class="muted" style="margin-top:14px">Ten insiders each filed a Form 4 last week. Which company are they betting on? Our <b style="color:var(--accent)">conviction_score</b> weighs cluster size, C-suite involvement and buy-vs-sell dominance into a single 0–100 signal — so your agent reads intent, not XML.</p>
       </div>
       <div class="conv-vis">
         <div class="conv-row"><span class="nm">NVDA</span><span class="bar b1" data-w="82"><i></i></span><span class="sc">82</span></div>
         <div class="conv-row"><span class="nm">MSFT</span><span class="bar b2" data-w="64"><i></i></span><span class="sc">64</span></div>
         <div class="conv-row"><span class="nm">TSLA</span><span class="bar b2" data-w="41"><i></i></span><span class="sc">41</span></div>
         <div class="conv-row"><span class="nm">AAPL</span><span class="bar b3" data-w="18"><i></i></span><span class="sc">18</span></div>
-        <div style="font-family:var(--mono);font-size:11px;color:var(--dim);margin-top:4px">â–² higher = stronger insider buying conviction Â· illustrative</div>
+        <div style="font-family:var(--mono);font-size:11px;color:var(--dim);margin-top:4px">▲ higher = stronger insider buying conviction · illustrative</div>
       </div>
     </div>
   </div>
@@ -404,7 +404,7 @@
         <div class="tab" data-l="js">JavaScript</div>
       </div>
       <div class="codebox">
-<pre class="on" data-l="curl"><span class="cmt"># One call â†’ profile, XBRL financials, filings & insider conviction</span>
+<pre class="on" data-l="curl"><span class="cmt"># One call → profile, XBRL financials, filings & insider conviction</span>
 curl <span class="str">"https://sec-intel-filings-financials-insider-trades.p.rapidapi.com/company?query=AAPL"</span> \
   -H <span class="str">"X-RapidAPI-Key: YOUR_KEY"</span> \
   -H <span class="str">"X-RapidAPI-Host: sec-intel-filings-financials-insider-trades.p.rapidapi.com"</span></pre>
@@ -417,15 +417,15 @@ curl <span class="str">"https://sec-intel-filings-financials-insider-trades.p.ra
     headers={<span class="str">"X-RapidAPI-Key"</span>: <span class="str">"YOUR_KEY"</span>, <span class="str">"X-RapidAPI-Host"</span>: <span class="var">HOST</span>},
 ).<span class="fn">json</span>()
 
-<span class="cmt"># one clean JSON blob (profile Â· financials Â· filings Â· insider conviction)</span>
-<span class="cmt"># â†’ feed straight into your LLM / RAG context</span></pre>
+<span class="cmt"># one clean JSON blob (profile · financials · filings · insider conviction)</span>
+<span class="cmt"># → feed straight into your LLM / RAG context</span></pre>
 <pre data-l="js"><span class="kw">const</span> <span class="var">HOST</span> = <span class="str">"sec-intel-filings-financials-insider-trades.p.rapidapi.com"</span>;
 <span class="kw">const</span> <span class="var">r</span> = <span class="kw">await</span> <span class="fn">fetch</span>(
   <span class="str">`https://${HOST}/company?query=AAPL`</span>,
   { headers: { <span class="str">"X-RapidAPI-Key"</span>: <span class="str">"YOUR_KEY"</span>, <span class="str">"X-RapidAPI-Host"</span>: <span class="var">HOST</span> } }
 ).<span class="fn">then</span>(x =&gt; x.<span class="fn">json</span>());
 
-<span class="cmt">// clean JSON â€” ready for tool-calling / RAG</span>
+<span class="cmt">// clean JSON — ready for tool-calling / RAG</span>
 console.<span class="fn">log</span>(<span class="var">r</span>);</pre>
       </div>
     </div>
@@ -482,10 +482,10 @@ console.<span class="fn">log</span>(<span class="var">r</span>);</pre>
       <h2>Questions, answered.</h2>
     </div>
     <div class="faq rev">
-      <details class="qa"><summary>Is the data official and safe to use commercially?</summary><p>Yes. It comes directly from SEC EDGAR, which is U.S. public-domain data. No licensing traps â€” you can build and sell on top of it.</p></details>
-      <details class="qa"><summary>How do I use this with an LLM like Claude or GPT?</summary><p>Every response is flat, predictable JSON â€” ideal for tool/function-calling or dropping into a RAG context window. No XBRL or XML parsing needed. The code samples above return context you can hand straight to a model.</p></details>
-      <details class="qa"><summary>What is the insider-conviction score?</summary><p>A 0â€“100 signal computed from Form 3/4/5 filings â€” factoring in how many insiders are buying, whether C-suite is involved, and buy-vs-sell dominance. It turns raw insider filings into a single number your app can act on. No other SEC API offers it.</p></details>
-      <details class="qa"><summary>Can I try it before paying?</summary><p>Yes â€” the free tier gives 1,000 calls/month with no credit card, and you can hit the live docs right now to test every endpoint in your browser.</p></details>
+      <details class="qa"><summary>Is the data official and safe to use commercially?</summary><p>Yes. It comes directly from SEC EDGAR, which is U.S. public-domain data. No licensing traps — you can build and sell on top of it.</p></details>
+      <details class="qa"><summary>How do I use this with an LLM like Claude or GPT?</summary><p>Every response is flat, predictable JSON — ideal for tool/function-calling or dropping into a RAG context window. No XBRL or XML parsing needed. The code samples above return context you can hand straight to a model.</p></details>
+      <details class="qa"><summary>What is the insider-conviction score?</summary><p>A 0–100 signal computed from Form 3/4/5 filings — factoring in how many insiders are buying, whether C-suite is involved, and buy-vs-sell dominance. It turns raw insider filings into a single number your app can act on. No other SEC API offers it.</p></details>
+      <details class="qa"><summary>Can I try it before paying?</summary><p>Yes — the free tier gives 1,000 calls/month with no credit card, and you can hit the live docs right now to test every endpoint in your browser.</p></details>
       <details class="qa"><summary>What are the rate limits?</summary><p>Generous per tier and enforced by RapidAPI. Free is for evaluation; Pro and above lift limits for production workloads.</p></details>
     </div>
   </div>
@@ -498,8 +498,8 @@ console.<span class="fn">log</span>(<span class="var">r</span>);</pre>
       <h2>Give your AI agent SEC superpowers.</h2>
       <p>Structured filings, insider signals, one clean call. Start on the free tier in under two minutes.</p>
       <div class="cta" style="justify-content:center;margin-top:28px">
-        <a href="#pricing" class="btn btn-primary btn-lg rapi">Get your API key â†’</a>
-        <a href="https://sec-intel-api.onrender.com/docs" target="_blank" rel="noopener" class="btn btn-ghost btn-lg">Explore the live docs â–¸</a>
+        <a href="#pricing" class="btn btn-primary btn-lg rapi">Get your API key →</a>
+        <a href="https://sec-intel-api.onrender.com/docs" target="_blank" rel="noopener" class="btn btn-ghost btn-lg">Explore the live docs ▸</a>
       </div>
     </div>
   </div>
@@ -622,15 +622,15 @@ console.<span class="fn">log</span>(<span class="var">r</span>);</pre>
   function go(){
     var t=(tick.value||"").trim().toUpperCase().replace(/[^A-Z]/g,"");
     tick.value=t;
-    run.disabled=true;meta.innerHTML="";out.textContent="fetchingâ€¦";
+    run.disabled=true;meta.innerHTML="";out.textContent="fetching…";
     var latency=(120+Math.floor(( (t.charCodeAt(0)||65)*7 )%180));
     setTimeout(function(){
       var json=buildJSON(t);
       if(!json){
-        meta.innerHTML='<span style="color:var(--sell)">â— 200 OK</span> Â· '+latency+'ms';
+        meta.innerHTML='<span style="color:var(--sell)">● 200 OK</span> · '+latency+'ms';
         stream('{\n  <span class="k">"ticker"</span>: <span class="s">"'+esc(t||"?")+'"</span>,\n  <span class="k">"note"</span>: <span class="s">"Live sample covers AAPL, MSFT, NVDA, TSLA. Your API key unlocks all 20M+ filings."</span>\n}');
       }else{
-        meta.innerHTML='<span class="status-ok">200 OK</span> Â· '+latency+'ms Â· application/json';
+        meta.innerHTML='<span class="status-ok">200 OK</span> · '+latency+'ms · application/json';
         stream(json);
       }
       run.disabled=false;
