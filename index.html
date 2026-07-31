@@ -4,14 +4,14 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>SEC Intel API - SEC filings your AI agent can read</title>
-<meta name="description" content="Structured JSON from 20M+ SEC EDGAR filings plus an exclusive insider-conviction score - built for AI agents, LLMs and RAG. Free tier, Pro from $29/mo.">
+<meta name="description" content="Structured JSON from 20M+ SEC EDGAR filings plus an exclusive insider-conviction score - built for AI agents, LLMs and RAG. MCP-ready. Free tier, Pro from $29/mo.">
 <meta name="theme-color" content="#0A0A0A">
 <meta property="og:type" content="website">
 <meta property="og:title" content="SEC Intel API - SEC filings your AI agent can read">
-<meta property="og:description" content="Clean JSON + an exclusive insider-conviction score from SEC EDGAR, built for AI agents. Free tier, Pro from $29/mo.">
+<meta property="og:description" content="Clean JSON + an exclusive insider-conviction score from SEC EDGAR, built for AI agents. MCP-ready. Free tier, Pro from $29/mo.">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="SEC Intel API - SEC data for AI agents">
-<meta name="twitter:description" content="Clean JSON + insider-conviction score from SEC EDGAR, built for AI agents.">
+<meta name="twitter:description" content="Clean JSON + insider-conviction score from SEC EDGAR, built for AI agents. MCP-ready.">
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%23F5B23D'/><text x='16' y='23' font-size='20' font-family='monospace' font-weight='bold' text-anchor='middle' fill='%230A0A0A'>S</text></svg>">
 </head>
 <body>
@@ -268,6 +268,7 @@
         <span><span class="check">✦</span> <b>Official SEC data</b> (public domain)</span>
         <span><span class="check">✦</span> <b>Keyless-simple JSON</b></span>
         <span><span class="check">✦</span> <b>Free tier, no card</b></span>
+        <span><span class="check">✦</span> <b>MCP-ready</b> — Claude · Cursor · VS Code</span>
       </div>
     </div>
 
@@ -402,6 +403,7 @@
         <div class="tab active" data-l="curl">cURL</div>
         <div class="tab" data-l="py">Python</div>
         <div class="tab" data-l="js">JavaScript</div>
+        <div class="tab" data-l="mcp">MCP</div>
       </div>
       <div class="codebox">
 <pre class="on" data-l="curl"><span class="cmt"># One call → profile, XBRL financials, filings & insider conviction</span>
@@ -427,6 +429,20 @@ curl <span class="str">"https://sec-intel-filings-financials-insider-trades.p.ra
 
 <span class="cmt">// clean JSON — ready for tool-calling / RAG</span>
 console.<span class="fn">log</span>(<span class="var">r</span>);</pre>
+<pre data-l="mcp"><span class="cmt">// Paste into Claude Desktop / Claude Code / Cursor / VS Code —</span>
+<span class="cmt">// your agent calls SEC Intel as a native MCP tool.</span>
+{
+  <span class="str">"mcpServers"</span>: {
+    <span class="str">"sec-intel"</span>: {
+      <span class="str">"command"</span>: <span class="str">"npx"</span>,
+      <span class="str">"args"</span>: [
+        <span class="str">"mcp-remote"</span>, <span class="str">"https://mcp.rapidapi.com"</span>,
+        <span class="str">"--header"</span>, <span class="str">"x-api-host: sec-intel-filings-financials-insider-trades.p.rapidapi.com"</span>,
+        <span class="str">"--header"</span>, <span class="str">"x-api-key: YOUR_KEY"</span>
+      ]
+    }
+  }
+}</pre>
       </div>
     </div>
   </div>
@@ -484,6 +500,7 @@ console.<span class="fn">log</span>(<span class="var">r</span>);</pre>
     <div class="faq rev">
       <details class="qa"><summary>Is the data official and safe to use commercially?</summary><p>Yes. It comes directly from SEC EDGAR, which is U.S. public-domain data. No licensing traps — you can build and sell on top of it.</p></details>
       <details class="qa"><summary>How do I use this with an LLM like Claude or GPT?</summary><p>Every response is flat, predictable JSON — ideal for tool/function-calling or dropping into a RAG context window. No XBRL or XML parsing needed. The code samples above return context you can hand straight to a model.</p></details>
+      <details class="qa"><summary>Is there an MCP server?</summary><p>Yes. SEC Intel is available as an MCP server through RapidAPI — paste one JSON config (see the <b>MCP</b> tab in the code section above) and your agent in Claude Desktop, Claude Code, Cursor or VS Code can call it as a native tool. No wrapper code required.</p></details>
       <details class="qa"><summary>What is the insider-conviction score?</summary><p>A 0–100 signal computed from Form 3/4/5 filings — factoring in how many insiders are buying, whether C-suite is involved, and buy-vs-sell dominance. It turns raw insider filings into a single number your app can act on. No other SEC API offers it.</p></details>
       <details class="qa"><summary>Can I try it before paying?</summary><p>Yes — the free tier gives 1,000 calls/month with no credit card, and you can hit the live docs right now to test every endpoint in your browser.</p></details>
       <details class="qa"><summary>What are the rate limits?</summary><p>Generous per tier and enforced by RapidAPI. Free is for evaluation; Pro and above lift limits for production workloads.</p></details>
