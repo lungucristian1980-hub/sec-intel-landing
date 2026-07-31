@@ -1,0 +1,646 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SEC Intel API - SEC filings your AI agent can read</title>
+<meta name="description" content="Structured JSON from 20M+ SEC EDGAR filings plus an exclusive insider-conviction score - built for AI agents, LLMs and RAG. Free tier, Pro from $29/mo.">
+<meta name="theme-color" content="#0A0A0A">
+<meta property="og:type" content="website">
+<meta property="og:title" content="SEC Intel API - SEC filings your AI agent can read">
+<meta property="og:description" content="Clean JSON + an exclusive insider-conviction score from SEC EDGAR, built for AI agents. Free tier, Pro from $29/mo.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="SEC Intel API - SEC data for AI agents">
+<meta name="twitter:description" content="Clean JSON + insider-conviction score from SEC EDGAR, built for AI agents.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%23F5B23D'/><text x='16' y='23' font-size='20' font-family='monospace' font-weight='bold' text-anchor='middle' fill='%230A0A0A'>S</text></svg>">
+</head>
+<body>
+<style>
+  :root{
+    --bg:#0A0A0A; --surface:#131313; --surface-2:#181818; --elevated:#1F1F1F;
+    --border:rgba(255,255,255,.08); --border-strong:rgba(255,255,255,.15);
+    --text:#ECECEC; --muted:#8C8C8C; --dim:#565656;
+    --accent:#F5B23D; --accent-2:#FFCF7A; --accent-ink:#0A0A0A;
+    --buy:#3AD07E; --sell:#F0595E; --teal:#2FB0A6;
+    --mono: ui-monospace,"Cascadia Code","JetBrains Mono","SF Mono",Consolas,"Liberation Mono",monospace;
+    --sans: system-ui,-apple-system,"Segoe UI Variable Display","Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --maxw:1180px;
+    --r:14px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0; background:var(--bg); color:var(--text);
+    font-family:var(--sans); line-height:1.6;
+    -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+    overflow-x:hidden;
+  }
+  a{color:inherit;text-decoration:none}
+  ::selection{background:var(--accent);color:#0A0A0A}
+
+  /* ---------- ambient background ---------- */
+  .bg-layer{position:fixed;inset:0;z-index:-2;pointer-events:none;overflow:hidden}
+  .aurora{position:absolute;border-radius:50%;filter:blur(90px);opacity:.55;will-change:transform}
+  .aurora.a1{width:620px;height:620px;background:radial-gradient(circle,#F5B23D,transparent 65%);top:-220px;left:-120px;animation:drift1 26s ease-in-out infinite}
+  .aurora.a2{width:520px;height:520px;background:radial-gradient(circle,#2FB0A6,transparent 65%);top:-80px;right:-140px;opacity:.35;animation:drift2 32s ease-in-out infinite}
+  .aurora.a3{width:480px;height:480px;background:radial-gradient(circle,#C98A2E,transparent 65%);top:640px;left:40%;opacity:.28;animation:drift1 38s ease-in-out infinite reverse}
+  @keyframes drift1{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(60px,50px) scale(1.12)}}
+  @keyframes drift2{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(-50px,40px) scale(1.08)}}
+  .dotgrid{position:fixed;inset:0;z-index:-2;pointer-events:none;
+    background-image:radial-gradient(circle,rgba(255,255,255,.10) 1px,transparent 1px);
+    background-size:26px 26px;
+    -webkit-mask-image:radial-gradient(ellipse 80% 55% at 50% 0%,#000 0%,transparent 72%);
+            mask-image:radial-gradient(ellipse 80% 55% at 50% 0%,#000 0%,transparent 72%);
+    opacity:.5}
+  .grain{position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.045;mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+
+  /* ---------- layout ---------- */
+  .wrap{max-width:var(--maxw);margin:0 auto;padding:0 24px}
+  section{position:relative}
+  .eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);font-weight:600}
+  h1,h2,h3{margin:0;font-weight:600;letter-spacing:-.02em;text-wrap:balance}
+  .muted{color:var(--muted)}
+
+  /* ---------- nav ---------- */
+  nav{position:sticky;top:0;z-index:50;transition:all .3s ease}
+  nav .navin{max-width:var(--maxw);margin:0 auto;padding:18px 24px;display:flex;align-items:center;justify-content:space-between;transition:all .3s ease}
+  nav.scrolled{background:rgba(10,10,10,.72);backdrop-filter:blur(14px);border-bottom:1px solid var(--border)}
+  nav.scrolled .navin{padding:11px 24px}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:600;letter-spacing:-.01em}
+  .brand .logo{width:30px;height:30px;border-radius:8px;background:linear-gradient(145deg,#F5B23D,#C98A2E);display:grid;place-items:center;color:#0A0A0A;font-family:var(--mono);font-weight:700;font-size:15px;box-shadow:0 0 0 1px rgba(255,255,255,.08) inset}
+  .navlinks{display:flex;align-items:center;gap:28px}
+  .navlinks a{font-size:14px;color:var(--muted);transition:color .2s}
+  .navlinks a:hover{color:var(--text)}
+  .btn{display:inline-flex;align-items:center;gap:8px;font-family:var(--sans);font-size:14px;font-weight:600;padding:10px 18px;border-radius:10px;border:1px solid transparent;cursor:pointer;transition:transform .12s ease,box-shadow .2s ease,background .2s}
+  .btn-primary{background:linear-gradient(145deg,#F5B23D,#E09A28);color:#0A0A0A;box-shadow:0 6px 24px -8px rgba(245,178,61,.6)}
+  .btn-primary:hover{box-shadow:0 10px 34px -8px rgba(245,178,61,.75)}
+  .btn-ghost{border-color:var(--border-strong);color:var(--text);background:rgba(255,255,255,.02)}
+  .btn-ghost:hover{background:rgba(255,255,255,.06)}
+  @media (max-width:720px){.navlinks .hidesm{display:none}}
+
+  /* ---------- hero ---------- */
+  .hero{padding:70px 0 40px}
+  .hero-grid{display:grid;grid-template-columns:1.05fr .95fr;gap:48px;align-items:center}
+  @media (max-width:940px){.hero-grid{grid-template-columns:1fr;gap:34px}}
+  .pill{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:12.5px;color:var(--muted);
+    padding:6px 13px;border:1px solid var(--border);border-radius:100px;background:rgba(255,255,255,.02)}
+  .pill .dot{width:7px;height:7px;border-radius:50%;background:var(--buy);box-shadow:0 0 10px var(--buy);animation:pulse 2.4s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+  .hero h1{font-size:clamp(34px,5.4vw,60px);line-height:1.04;margin:22px 0 0}
+  .hero h1 .hl{background:linear-gradient(120deg,#FFCF7A,#F5B23D);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .hero .sub{font-size:clamp(16px,2vw,19px);color:var(--muted);max-width:34em;margin:20px 0 0}
+  .hero .cta{display:flex;gap:14px;flex-wrap:wrap;margin-top:30px}
+  .btn-lg{padding:14px 24px;font-size:15px;border-radius:12px}
+  .trustline{display:flex;gap:20px;flex-wrap:wrap;margin-top:26px;font-size:13px;color:var(--dim);font-family:var(--mono)}
+  .trustline b{color:var(--muted);font-weight:500}
+  .trustline span{display:inline-flex;align-items:center;gap:7px}
+  .check{color:var(--accent)}
+
+  /* ---------- playground ---------- */
+  .term{background:linear-gradient(180deg,#161616,#111);border:1px solid var(--border-strong);border-radius:16px;overflow:hidden;box-shadow:0 40px 90px -40px rgba(0,0,0,.9),0 0 0 1px rgba(255,255,255,.03)}
+  .term-bar{display:flex;align-items:center;gap:8px;padding:12px 15px;border-bottom:1px solid var(--border);background:rgba(255,255,255,.015)}
+  .term-bar .tdot{width:11px;height:11px;border-radius:50%;background:#333}
+  .term-bar .t1{background:#F0595E}.term-bar .t2{background:#F5B23D}.term-bar .t3{background:#3AD07E}
+  .term-bar .path{font-family:var(--mono);font-size:12px;color:var(--dim);margin-left:8px}
+  .term-body{padding:16px 16px 18px}
+  .req{display:flex;gap:9px;align-items:center;flex-wrap:wrap;font-family:var(--mono);font-size:13px}
+  .method{background:var(--accent-dim,rgba(245,178,61,.16));color:var(--accent);padding:2px 8px;border-radius:6px;font-weight:700;font-size:11px;border:1px solid rgba(245,178,61,.25)}
+  .req .url{color:var(--muted)}
+  .tickin{background:#0d0d0d;border:1px solid var(--border-strong);color:var(--accent-2);font-family:var(--mono);font-weight:700;
+    width:74px;padding:4px 8px;border-radius:7px;text-transform:uppercase;letter-spacing:.05em;outline:none}
+  .tickin:focus{border-color:var(--accent)}
+  .runbtn{margin-left:auto;background:var(--accent);color:#0A0A0A;border:none;font-family:var(--sans);font-weight:700;font-size:12.5px;
+    padding:6px 15px;border-radius:8px;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:filter .15s,transform .1s}
+  .runbtn:hover{filter:brightness(1.08)}.runbtn:active{transform:scale(.96)}
+  .runbtn:disabled{opacity:.6;cursor:default}
+  .respmeta{display:flex;align-items:center;gap:12px;margin:14px 0 8px;font-family:var(--mono);font-size:11.5px;color:var(--dim);min-height:18px}
+  .status-ok{color:var(--buy)}.status-ok::before{content:"â— "}
+  pre.resp{margin:0;background:#0c0c0c;border:1px solid var(--border);border-radius:10px;padding:14px 16px;
+    font-family:var(--mono);font-size:12.5px;line-height:1.65;color:#cfcfcf;overflow-x:auto;min-height:230px;white-space:pre-wrap;word-break:break-word}
+  .resp .k{color:#7fb4ff}.resp .s{color:#c7e59a}.resp .n{color:#ffcf7a}.resp .b{color:#c792ea}
+  .resp .conv{color:var(--accent);font-weight:700}
+  .resp .buy{color:var(--buy)}.resp .sell{color:var(--sell)}
+  .caret{display:inline-block;width:7px;height:14px;background:var(--accent);vertical-align:-2px;animation:blink 1s steps(1) infinite}
+  @keyframes blink{50%{opacity:0}}
+  .hint{font-family:var(--mono);font-size:11px;color:var(--dim);margin-top:10px}
+
+  /* ---------- strip / stats ---------- */
+  .strip{border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin-top:56px;background:rgba(255,255,255,.012)}
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:20px;padding:34px 0}
+  @media (max-width:720px){.stats{grid-template-columns:repeat(2,1fr);gap:26px}}
+  .stat .num{font-family:var(--mono);font-size:clamp(26px,3.4vw,36px);font-weight:700;color:#fff;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+  .stat .num .u{color:var(--accent)}
+  .stat .lbl{font-size:13px;color:var(--muted);margin-top:4px}
+
+  /* ---------- generic section head ---------- */
+  .sec{padding:88px 0}
+  .sechead{max-width:640px;margin-bottom:44px}
+  .sechead h2{font-size:clamp(26px,3.6vw,40px);margin-top:12px;line-height:1.1}
+  .sechead p{color:var(--muted);font-size:16.5px;margin:14px 0 0}
+
+  /* ---------- comparison ---------- */
+  .cmp{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+  @media (max-width:820px){.cmp{grid-template-columns:1fr}}
+  .cmp-card{border:1px solid var(--border);border-radius:var(--r);padding:26px;background:var(--surface)}
+  .cmp-card.them{opacity:.9}
+  .cmp-card.us{border-color:rgba(245,178,61,.4);background:linear-gradient(180deg,rgba(245,178,61,.05),transparent 60%),var(--surface);box-shadow:0 0 0 1px rgba(245,178,61,.15)}
+  .cmp-card h3{font-size:14px;font-family:var(--mono);text-transform:uppercase;letter-spacing:.1em;color:var(--muted)}
+  .cmp-card.us h3{color:var(--accent)}
+  .cmp-card ul{list-style:none;padding:0;margin:18px 0 0;display:flex;flex-direction:column;gap:13px}
+  .cmp-card li{display:flex;gap:11px;align-items:flex-start;font-size:14.5px;color:var(--text)}
+  .cmp-card li .ic{flex:none;width:19px;height:19px;border-radius:5px;display:grid;place-items:center;font-size:12px;margin-top:2px;font-weight:700}
+  .them li .ic{background:rgba(240,89,94,.12);color:var(--sell)}
+  .us li .ic{background:rgba(58,208,126,.14);color:var(--buy)}
+
+  /* ---------- features bento ---------- */
+  .bento{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+  @media (max-width:820px){.bento{grid-template-columns:1fr}}
+  .card{position:relative;border:1px solid var(--border);border-radius:var(--r);padding:26px;background:var(--surface);overflow:hidden;transition:border-color .3s,transform .3s}
+  .card::before{content:"";position:absolute;inset:0;opacity:0;transition:opacity .3s;
+    background:radial-gradient(240px circle at var(--mx,50%) var(--my,0%),rgba(245,178,61,.10),transparent 60%)}
+  .card:hover::before{opacity:1}
+  .card:hover{border-color:var(--border-strong)}
+  .card.wide{grid-column:span 2}
+  @media (max-width:820px){.card.wide{grid-column:span 1}}
+  .card .kx{font-family:var(--mono);font-size:12px;color:var(--accent);font-weight:600}
+  .card h3{font-size:18px;margin:14px 0 8px}
+  .card p{color:var(--muted);font-size:14.5px;margin:0}
+
+  /* ---------- conviction band ---------- */
+  .conv-wrap{border:1px solid var(--border);border-radius:18px;background:linear-gradient(180deg,var(--surface),#101010);padding:38px;display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:center}
+  @media (max-width:820px){.conv-wrap{grid-template-columns:1fr;gap:28px}}
+  .conv-vis{display:flex;flex-direction:column;gap:14px}
+  .conv-row{display:grid;grid-template-columns:64px 1fr 48px;gap:12px;align-items:center;font-family:var(--mono);font-size:13px}
+  .conv-row .nm{color:var(--muted)}
+  .bar{height:9px;border-radius:5px;background:rgba(255,255,255,.06);overflow:hidden}
+  .bar i{display:block;height:100%;border-radius:5px;width:0;transition:width 1.1s cubic-bezier(.2,.7,.2,1)}
+  .bar.b1 i{background:linear-gradient(90deg,#3AD07E,#2FB0A6)}
+  .bar.b2 i{background:linear-gradient(90deg,#F5B23D,#FFCF7A)}
+  .bar.b3 i{background:linear-gradient(90deg,#F0595E,#C98A2E)}
+  .conv-row .sc{text-align:right;font-weight:700;color:#fff}
+
+  /* ---------- code tabs ---------- */
+  .tabs{display:flex;gap:6px;margin-bottom:0;border:1px solid var(--border);border-bottom:none;border-radius:12px 12px 0 0;padding:8px 8px 0;background:var(--surface);width:fit-content}
+  .tab{font-family:var(--mono);font-size:13px;color:var(--muted);padding:8px 16px;border-radius:8px 8px 0 0;cursor:pointer;border:1px solid transparent;border-bottom:none}
+  .tab.active{color:var(--accent);background:#0c0c0c;border-color:var(--border)}
+  .codebox{border:1px solid var(--border);border-radius:0 12px 12px 12px;background:#0c0c0c;overflow:hidden}
+  .codebox pre{margin:0;padding:20px 22px;font-family:var(--mono);font-size:13px;line-height:1.7;color:#cfcfcf;overflow-x:auto}
+  .codebox pre:not(.on){display:none}
+  .cmt{color:#5e5e5e}.kw{color:#c792ea}.str{color:#c7e59a}.fn{color:#7fb4ff}.var{color:#ffcf7a}
+
+  /* ---------- pricing ---------- */
+  .prices{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+  @media (max-width:940px){.prices{grid-template-columns:repeat(2,1fr)}}
+  @media (max-width:520px){.prices{grid-template-columns:1fr}}
+  .price{border:1px solid var(--border);border-radius:var(--r);padding:24px;background:var(--surface);display:flex;flex-direction:column;gap:6px;position:relative}
+  .price.reco{border-color:transparent;background:var(--surface-2)}
+  .price.reco::after{content:"";position:absolute;inset:0;border-radius:var(--r);padding:1px;
+    background:conic-gradient(from 180deg,transparent,var(--accent),transparent 55%);
+    -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none}
+  .price .tier{font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+  .price.reco .tier{color:var(--accent)}
+  .price .amt{font-size:32px;font-weight:700;letter-spacing:-.02em;font-family:var(--mono)}
+  .price .amt small{font-size:14px;color:var(--dim);font-weight:400}
+  .price .q{font-size:13px;color:var(--muted);margin-bottom:8px}
+  .price ul{list-style:none;padding:0;margin:6px 0 16px;display:flex;flex-direction:column;gap:8px;font-size:13.5px;color:var(--muted)}
+  .price li::before{content:"â†’ ";color:var(--accent)}
+  .price .btn{margin-top:auto;justify-content:center}
+  .badge{position:absolute;top:-11px;left:50%;transform:translateX(-50%);background:var(--accent);color:#0A0A0A;font-size:10.5px;font-weight:700;font-family:var(--mono);letter-spacing:.08em;padding:3px 11px;border-radius:100px;text-transform:uppercase}
+
+  /* ---------- faq ---------- */
+  .faq{max-width:780px;margin:0 auto}
+  .qa{border-bottom:1px solid var(--border);padding:20px 0}
+  .qa summary{cursor:pointer;font-weight:600;font-size:16px;list-style:none;display:flex;justify-content:space-between;gap:16px;align-items:center}
+  .qa summary::-webkit-details-marker{display:none}
+  .qa summary::after{content:"+";color:var(--accent);font-family:var(--mono);font-size:20px;transition:transform .2s}
+  .qa[open] summary::after{transform:rotate(45deg)}
+  .qa p{color:var(--muted);font-size:14.5px;margin:12px 0 0}
+
+  /* ---------- final cta ---------- */
+  .final{text-align:center;padding:90px 0}
+  .final h2{font-size:clamp(28px,4vw,44px)}
+  .final p{color:var(--muted);max-width:36em;margin:16px auto 0;font-size:17px}
+
+  footer{border-top:1px solid var(--border);padding:38px 0;color:var(--dim);font-size:13px}
+  footer .fin{display:flex;justify-content:space-between;flex-wrap:wrap;gap:16px;align-items:center}
+  footer .disc{max-width:60ch;font-size:12px;line-height:1.6;margin-top:18px;color:var(--dim)}
+
+  /* ---------- reveal ---------- */
+  .rev{opacity:0;transform:translateY(22px);transition:opacity .7s ease,transform .7s ease}
+  .rev.in{opacity:1;transform:none}
+  @media (prefers-reduced-motion:reduce){
+    .rev{opacity:1;transform:none;transition:none}
+    .aurora{animation:none}.caret{animation:none}.pill .dot{animation:none}
+    html{scroll-behavior:auto}
+  }
+</style>
+
+<div class="bg-layer"><div class="aurora a1"></div><div class="aurora a2"></div><div class="aurora a3"></div></div>
+<div class="dotgrid"></div>
+<div class="grain"></div>
+
+<nav id="nav">
+  <div class="navin">
+    <div class="brand"><span class="logo">S</span> SEC Intel <span style="color:var(--dim);font-weight:400">API</span></div>
+    <div class="navlinks">
+      <a href="#how" class="hidesm">How it works</a>
+      <a href="#why" class="hidesm">Why us</a>
+      <a href="#pricing" class="hidesm">Pricing</a>
+      <a href="#faq" class="hidesm">FAQ</a>
+      <a href="#pricing" class="btn btn-primary">Get API key</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <span class="pill"><span class="dot"></span> SEC EDGAR API Â· built for AI agents</span>
+      <h1>SEC filings your <span class="hl">AI agent</span> can actually read.</h1>
+      <p class="sub">One call returns clean, structured JSON from 20M+ SEC EDGAR filings â€” plus an <b style="color:var(--text)">insider-conviction score</b> no other API gives you. Drop it straight into Claude, GPT, or any RAG pipeline. No XBRL parsing, no walls of XML.</p>
+      <div class="cta">
+        <a href="#pricing" class="btn btn-primary btn-lg" id="magnet">Get your API key â†’</a>
+        <a href="https://sec-intel-api.onrender.com/docs" target="_blank" rel="noopener" class="btn btn-ghost btn-lg">Try it live â€” free â–¸</a>
+      </div>
+      <div class="trustline">
+        <span><span class="check">âœ¦</span> <b>Official SEC data</b> (public domain)</span>
+        <span><span class="check">âœ¦</span> <b>Keyless-simple JSON</b></span>
+        <span><span class="check">âœ¦</span> <b>Free tier, no card</b></span>
+      </div>
+    </div>
+
+    <!-- live playground -->
+    <div class="term rev">
+      <div class="term-bar">
+        <span class="tdot t1"></span><span class="tdot t2"></span><span class="tdot t3"></span>
+        <span class="path">GET /company â€” SEC Intel API</span>
+      </div>
+      <div class="term-body">
+        <div class="req">
+          <span class="method">GET</span>
+          <span class="url">/company?query=</span>
+          <input class="tickin" id="tick" value="AAPL" maxlength="6" spellcheck="false" aria-label="ticker">
+          <button class="runbtn" id="run">â–¸ Run</button>
+        </div>
+        <div class="respmeta" id="meta"></div>
+        <pre class="resp" id="out">Press <span style="color:var(--accent)">Run</span> to fetch a live sample responseâ€¦</pre>
+        <div class="hint">â†‘ Try AAPL, MSFT, NVDA, TSLA â€” illustrative sample. Real queries return live SEC data with your key.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STAT STRIP -->
+<div class="strip"><div class="wrap"><div class="stats">
+  <div class="stat rev"><div class="num" data-to="20" data-suf="M+">0</div><div class="lbl">SEC EDGAR filings</div></div>
+  <div class="stat rev"><div class="num" data-pre="" data-to="1993" data-raw="1">1993</div><div class="lbl">Coverage since â†’ today</div></div>
+  <div class="stat rev"><div class="num"><span class="u">&lt;</span><span data-to="1" data-suf="s">0</span></div><div class="lbl">Warm response time</div></div>
+  <div class="stat rev"><div class="num" data-to="100" data-suf="">0</div><div class="lbl">Insider conviction (0â€“100)</div></div>
+</div></div></div>
+
+<!-- WHY / COMPARISON -->
+<section class="sec" id="why">
+  <div class="wrap">
+    <div class="sechead rev">
+      <span class="eyebrow">The gap nobody filled</span>
+      <h2>Everyone else built SEC data for analysts. We built it for machines.</h2>
+      <p>The incumbents ship raw XBRL, CSV exports and Excel add-ons â€” great for a human with a spreadsheet, hostile to an LLM. Here's the difference on the same data.</p>
+    </div>
+    <div class="cmp">
+      <div class="cmp-card them rev">
+        <h3>Traditional SEC APIs</h3>
+        <ul>
+          <li><span class="ic">âœ•</span> Raw XBRL / XML you must parse yourself</li>
+          <li><span class="ic">âœ•</span> Docs are walls of SEO text, not for developers</li>
+          <li><span class="ic">âœ•</span> Zero AI / LLM / RAG positioning or examples</li>
+          <li><span class="ic">âœ•</span> Give you data â€” never a <i>signal</i></li>
+          <li><span class="ic">âœ•</span> From $49â€“$239 / month</li>
+        </ul>
+      </div>
+      <div class="cmp-card us rev">
+        <h3>SEC Intel API</h3>
+        <ul>
+          <li><span class="ic">âœ“</span> Clean, flat JSON â€” ready for function-calling &amp; RAG</li>
+          <li><span class="ic">âœ“</span> One call: financials, filings, insider activity</li>
+          <li><span class="ic">âœ“</span> Built &amp; documented for Claude / GPT pipelines</li>
+          <li><span class="ic">âœ“</span> Exclusive <b>insider-conviction score</b> (0â€“100)</li>
+          <li><span class="ic">âœ“</span> Free tier Â· Pro from <b>$29 / month</b></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES BENTO -->
+<section class="sec" id="how" style="padding-top:0">
+  <div class="wrap">
+    <div class="sechead rev">
+      <span class="eyebrow">What you get</span>
+      <h2>Everything an agent needs from SEC EDGAR â€” in one endpoint set.</h2>
+    </div>
+    <div class="bento">
+      <div class="card wide rev">
+        <div class="kx">/company Â· /financials</div>
+        <h3>Structured financials, no XBRL pain</h3>
+        <p>Revenue, net income, EPS, margins and history parsed straight from official XBRL into flat JSON keys your model can reason over. No schema archaeology.</p>
+      </div>
+      <div class="card rev">
+        <div class="kx">/insider</div>
+        <h3>Form 3/4/5 parsed</h3>
+        <p>Every insider buy &amp; sell as clean JSON â€” no XML scraping, with acquisition/disposition flags and prices.</p>
+      </div>
+      <div class="card rev">
+        <div class="kx">exclusive</div>
+        <h3>Insider-conviction score</h3>
+        <p>We turn raw Form 4 noise into a 0â€“100 signal: cluster size, C-suite weight, buy dominance. Nobody else ships this.</p>
+      </div>
+      <div class="card rev">
+        <div class="kx">/filings Â· /search</div>
+        <h3>Full-text filing search</h3>
+        <p>Find 10-K, 10-Q, 8-K and more by ticker, CIK or keyword â€” with the fields an agent actually needs.</p>
+      </div>
+      <div class="card rev">
+        <div class="kx">/latest Â· /insider-signals</div>
+        <h3>Market-wide live feeds</h3>
+        <p>Stream the latest filings and insider-buying signals across the whole market for alerts and screeners.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONVICTION BAND -->
+<section class="sec" style="padding-top:0">
+  <div class="wrap">
+    <div class="conv-wrap rev">
+      <div>
+        <span class="eyebrow">The differentiator</span>
+        <h2 style="font-size:clamp(24px,3vw,34px);margin-top:12px">From raw Form 4 noise â†’ one number your agent can act on.</h2>
+        <p class="muted" style="margin-top:14px">Ten insiders each filed a Form 4 last week. Which company are they betting on? Our <b style="color:var(--accent)">conviction_score</b> weighs cluster size, C-suite involvement and buy-vs-sell dominance into a single 0â€“100 signal â€” so your agent reads intent, not XML.</p>
+      </div>
+      <div class="conv-vis">
+        <div class="conv-row"><span class="nm">NVDA</span><span class="bar b1" data-w="82"><i></i></span><span class="sc">82</span></div>
+        <div class="conv-row"><span class="nm">MSFT</span><span class="bar b2" data-w="64"><i></i></span><span class="sc">64</span></div>
+        <div class="conv-row"><span class="nm">TSLA</span><span class="bar b2" data-w="41"><i></i></span><span class="sc">41</span></div>
+        <div class="conv-row"><span class="nm">AAPL</span><span class="bar b3" data-w="18"><i></i></span><span class="sc">18</span></div>
+        <div style="font-family:var(--mono);font-size:11px;color:var(--dim);margin-top:4px">â–² higher = stronger insider buying conviction Â· illustrative</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CODE -->
+<section class="sec" style="padding-top:0">
+  <div class="wrap">
+    <div class="sechead rev">
+      <span class="eyebrow">Three lines to production</span>
+      <h2>Call it from anything. Feed it to any model.</h2>
+    </div>
+    <div class="rev">
+      <div class="tabs" id="tabs">
+        <div class="tab active" data-l="curl">cURL</div>
+        <div class="tab" data-l="py">Python</div>
+        <div class="tab" data-l="js">JavaScript</div>
+      </div>
+      <div class="codebox">
+<pre class="on" data-l="curl"><span class="cmt"># One call â†’ profile, XBRL financials, filings & insider conviction</span>
+curl <span class="str">"https://sec-intel-filings-financials-insider-trades.p.rapidapi.com/company?query=AAPL"</span> \
+  -H <span class="str">"X-RapidAPI-Key: YOUR_KEY"</span> \
+  -H <span class="str">"X-RapidAPI-Host: sec-intel-filings-financials-insider-trades.p.rapidapi.com"</span></pre>
+<pre data-l="py"><span class="kw">import</span> requests
+
+<span class="var">HOST</span> = <span class="str">"sec-intel-filings-financials-insider-trades.p.rapidapi.com"</span>
+<span class="var">r</span> = requests.<span class="fn">get</span>(
+    <span class="str">f"https://{HOST}/company"</span>,
+    params={<span class="str">"query"</span>: <span class="str">"AAPL"</span>},
+    headers={<span class="str">"X-RapidAPI-Key"</span>: <span class="str">"YOUR_KEY"</span>, <span class="str">"X-RapidAPI-Host"</span>: <span class="var">HOST</span>},
+).<span class="fn">json</span>()
+
+<span class="cmt"># one clean JSON blob (profile Â· financials Â· filings Â· insider conviction)</span>
+<span class="cmt"># â†’ feed straight into your LLM / RAG context</span></pre>
+<pre data-l="js"><span class="kw">const</span> <span class="var">HOST</span> = <span class="str">"sec-intel-filings-financials-insider-trades.p.rapidapi.com"</span>;
+<span class="kw">const</span> <span class="var">r</span> = <span class="kw">await</span> <span class="fn">fetch</span>(
+  <span class="str">`https://${HOST}/company?query=AAPL`</span>,
+  { headers: { <span class="str">"X-RapidAPI-Key"</span>: <span class="str">"YOUR_KEY"</span>, <span class="str">"X-RapidAPI-Host"</span>: <span class="var">HOST</span> } }
+).<span class="fn">then</span>(x =&gt; x.<span class="fn">json</span>());
+
+<span class="cmt">// clean JSON â€” ready for tool-calling / RAG</span>
+console.<span class="fn">log</span>(<span class="var">r</span>);</pre>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="sec" id="pricing">
+  <div class="wrap">
+    <div class="sechead rev" style="max-width:100%;text-align:center;margin-left:auto;margin-right:auto">
+      <span class="eyebrow">Simple, honest pricing</span>
+      <h2>Start free. Scale when your agent does.</h2>
+      <p style="margin-left:auto;margin-right:auto">Undercut the incumbents, keep the free tier real. Billing &amp; keys via RapidAPI.</p>
+    </div>
+    <div class="prices">
+      <div class="price rev">
+        <span class="tier">Free</span>
+        <div class="amt">$0</div>
+        <div class="q">1,000 calls / mo</div>
+        <ul><li>All endpoints</li><li>Conviction score</li><li>No credit card</li></ul>
+        <a href="https://rapidapi.com/lungucristian1980/api/sec-intel-filings-financials-insider-trades" target="_blank" rel="noopener" class="btn btn-ghost rapi">Start free</a>
+      </div>
+      <div class="price reco rev">
+        <span class="badge">Recommended</span>
+        <span class="tier">Pro</span>
+        <div class="amt">$29<small>/mo</small></div>
+        <div class="q">100,000 calls / mo</div>
+        <ul><li>Everything in Free</li><li>Higher rate limits</li><li>Email support</li></ul>
+        <a href="https://rapidapi.com/lungucristian1980/api/sec-intel-filings-financials-insider-trades" target="_blank" rel="noopener" class="btn btn-primary rapi">Get Pro</a>
+      </div>
+      <div class="price rev">
+        <span class="tier">Ultra</span>
+        <div class="amt">$79<small>/mo</small></div>
+        <div class="q">1,000,000 calls / mo</div>
+        <ul><li>Everything in Pro</li><li>Priority throughput</li></ul>
+        <a href="https://rapidapi.com/lungucristian1980/api/sec-intel-filings-financials-insider-trades" target="_blank" rel="noopener" class="btn btn-ghost rapi">Get Ultra</a>
+      </div>
+      <div class="price rev">
+        <span class="tier">Mega</span>
+        <div class="amt">$179<small>/mo</small></div>
+        <div class="q">6,000,000 calls / mo</div>
+        <ul><li>Everything in Ultra</li><li>Bulk / high volume</li></ul>
+        <a href="https://rapidapi.com/lungucristian1980/api/sec-intel-filings-financials-insider-trades" target="_blank" rel="noopener" class="btn btn-ghost rapi">Get Mega</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="sec" id="faq" style="padding-top:0">
+  <div class="wrap">
+    <div class="sechead rev" style="text-align:center;margin:0 auto 44px">
+      <span class="eyebrow">FAQ</span>
+      <h2>Questions, answered.</h2>
+    </div>
+    <div class="faq rev">
+      <details class="qa"><summary>Is the data official and safe to use commercially?</summary><p>Yes. It comes directly from SEC EDGAR, which is U.S. public-domain data. No licensing traps â€” you can build and sell on top of it.</p></details>
+      <details class="qa"><summary>How do I use this with an LLM like Claude or GPT?</summary><p>Every response is flat, predictable JSON â€” ideal for tool/function-calling or dropping into a RAG context window. No XBRL or XML parsing needed. The code samples above return context you can hand straight to a model.</p></details>
+      <details class="qa"><summary>What is the insider-conviction score?</summary><p>A 0â€“100 signal computed from Form 3/4/5 filings â€” factoring in how many insiders are buying, whether C-suite is involved, and buy-vs-sell dominance. It turns raw insider filings into a single number your app can act on. No other SEC API offers it.</p></details>
+      <details class="qa"><summary>Can I try it before paying?</summary><p>Yes â€” the free tier gives 1,000 calls/month with no credit card, and you can hit the live docs right now to test every endpoint in your browser.</p></details>
+      <details class="qa"><summary>What are the rate limits?</summary><p>Generous per tier and enforced by RapidAPI. Free is for evaluation; Pro and above lift limits for production workloads.</p></details>
+    </div>
+  </div>
+</section>
+
+<!-- FINAL CTA -->
+<section class="final">
+  <div class="wrap">
+    <div class="rev">
+      <h2>Give your AI agent SEC superpowers.</h2>
+      <p>Structured filings, insider signals, one clean call. Start on the free tier in under two minutes.</p>
+      <div class="cta" style="justify-content:center;margin-top:28px">
+        <a href="#pricing" class="btn btn-primary btn-lg rapi">Get your API key â†’</a>
+        <a href="https://sec-intel-api.onrender.com/docs" target="_blank" rel="noopener" class="btn btn-ghost btn-lg">Explore the live docs â–¸</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="fin">
+      <div class="brand"><span class="logo">S</span> SEC Intel API</div>
+      <div style="display:flex;gap:22px">
+        <a href="https://sec-intel-api.onrender.com/docs" target="_blank" rel="noopener">Docs</a>
+        <a href="#pricing">Pricing</a>
+        <a href="https://github.com/lungucristian1980-hub" target="_blank" rel="noopener">GitHub</a>
+      </div>
+    </div>
+    <p class="disc">SEC Intel API is an independent product built on public SEC EDGAR data. Not affiliated with or endorsed by the U.S. Securities and Exchange Commission. Data is provided for informational purposes only and is not investment advice.</p>
+  </div>
+</footer>
+
+<script>
+(function(){
+  "use strict";
+  var rm = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /* nav condense */
+  var nav=document.getElementById("nav");
+  addEventListener("scroll",function(){nav.classList.toggle("scrolled",scrollY>16);},{passive:true});
+
+  /* reveal on scroll */
+  var io=new IntersectionObserver(function(es){
+    es.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add("in"); io.unobserve(e.target);} });
+  },{threshold:.14});
+  document.querySelectorAll(".rev").forEach(function(el){io.observe(el);});
+
+  /* count-ups */
+  function countUp(el){
+    var to=parseFloat(el.getAttribute("data-to")), suf=el.getAttribute("data-suf")||"", pre=el.getAttribute("data-pre")||"", raw=el.getAttribute("data-raw");
+    if(raw){el.textContent=pre+to+suf;return;}
+    var dur=1200,t0=null;
+    function step(t){ if(!t0)t0=t; var p=Math.min((t-t0)/dur,1); var e=1-Math.pow(1-p,3);
+      var v=to*e; var out=(to%1===0)?Math.round(v):v.toFixed(1);
+      el.textContent=pre+out+suf; if(p<1)requestAnimationFrame(step);}
+    requestAnimationFrame(step);
+  }
+  var sio=new IntersectionObserver(function(es){
+    es.forEach(function(e){ if(e.isIntersecting){ countUp(e.target); sio.unobserve(e.target);} });
+  },{threshold:.6});
+  document.querySelectorAll(".num [data-to],.num[data-to]").forEach(function(el){ if(rm){el.textContent=(el.getAttribute("data-pre")||"")+el.getAttribute("data-to")+(el.getAttribute("data-suf")||"");} else sio.observe(el);});
+
+  /* conviction bars */
+  var bio=new IntersectionObserver(function(es){
+    es.forEach(function(e){ if(e.isIntersecting){ e.target.querySelector("i").style.width=e.target.getAttribute("data-w")+"%"; bio.unobserve(e.target);} });
+  },{threshold:.5});
+  document.querySelectorAll(".bar").forEach(function(b){bio.observe(b);});
+
+  /* card spotlight */
+  document.querySelectorAll(".card").forEach(function(c){
+    c.addEventListener("mousemove",function(ev){var r=c.getBoundingClientRect();c.style.setProperty("--mx",(ev.clientX-r.left)+"px");c.style.setProperty("--my",(ev.clientY-r.top)+"px");});
+  });
+
+  /* magnetic CTA */
+  if(!rm){var m=document.getElementById("magnet");
+    m.addEventListener("mousemove",function(ev){var r=m.getBoundingClientRect();var x=ev.clientX-r.left-r.width/2,y=ev.clientY-r.top-r.height/2;m.style.transform="translate("+x*.25+"px,"+y*.35+"px)";});
+    m.addEventListener("mouseleave",function(){m.style.transform="";});
+  }
+
+  /* code tabs */
+  document.getElementById("tabs").addEventListener("click",function(ev){
+    var t=ev.target.closest(".tab"); if(!t)return;
+    document.querySelectorAll(".tab").forEach(function(x){x.classList.remove("active");});
+    t.classList.add("active");
+    var l=t.getAttribute("data-l");
+    document.querySelectorAll(".codebox pre").forEach(function(p){p.classList.toggle("on",p.getAttribute("data-l")===l);});
+  });
+
+  /* ---- playground ---- */
+  var DATA={
+    AAPL:{company:"Apple Inc.",cik:"0000320193",fiscal:"FY2025",revenue:416161000000,net_income:99803000000,eps:7.46,insider_90d:{buys:2,sells:14},conviction_score:18,signal:"distribution"},
+    MSFT:{company:"Microsoft Corp.",cik:"0000789019",fiscal:"FY2025",revenue:281724000000,net_income:101832000000,eps:13.64,insider_90d:{buys:9,sells:5},conviction_score:64,signal:"accumulation"},
+    NVDA:{company:"NVIDIA Corp.",cik:"0001045810",fiscal:"FY2025",revenue:130497000000,net_income:72880000000,eps:2.94,insider_90d:{buys:11,sells:3},conviction_score:82,signal:"strong_accumulation"},
+    TSLA:{company:"Tesla, Inc.",cik:"0001318605",fiscal:"FY2025",revenue:97690000000,net_income:7130000000,eps:2.04,insider_90d:{buys:6,sells:8},conviction_score:41,signal:"neutral"}
+  };
+  function fmt(n){return "$"+n.toLocaleString("en-US");}
+  function esc(s){return String(s).replace(/[&<>]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;"}[c];});}
+  function buildJSON(t){
+    var d=DATA[t]; if(!d){return null;}
+    var convClass = d.conviction_score>=60?"buy":(d.conviction_score<=30?"sell":"conv");
+    var L=[];
+    L.push('{');
+    L.push('  <span class="k">"ticker"</span>: <span class="s">"'+t+'"</span>,');
+    L.push('  <span class="k">"company"</span>: <span class="s">"'+esc(d.company)+'"</span>,');
+    L.push('  <span class="k">"cik"</span>: <span class="s">"'+d.cik+'"</span>,');
+    L.push('  <span class="k">"fiscal_period"</span>: <span class="s">"'+d.fiscal+'"</span>,');
+    L.push('  <span class="k">"revenue"</span>: <span class="n">'+d.revenue+'</span>,');
+    L.push('  <span class="k">"net_income"</span>: <span class="n">'+d.net_income+'</span>,');
+    L.push('  <span class="k">"eps"</span>: <span class="n">'+d.eps+'</span>,');
+    L.push('  <span class="k">"insider_90d"</span>: { <span class="k">"buys"</span>: <span class="buy">'+d.insider_90d.buys+'</span>, <span class="k">"sells"</span>: <span class="sell">'+d.insider_90d.sells+'</span> },');
+    L.push('  <span class="k">"conviction_score"</span>: <span class="'+convClass+'">'+d.conviction_score+'</span>,');
+    L.push('  <span class="k">"signal"</span>: <span class="s">"'+d.signal+'"</span>');
+    L.push('}');
+    return L.join("\n");
+  }
+  var out=document.getElementById("out"), meta=document.getElementById("meta"), run=document.getElementById("run"), tick=document.getElementById("tick");
+  var typing=null;
+  function stream(html){
+    if(typing){clearInterval(typing);}
+    if(rm){out.innerHTML=html;return;}
+    var i=0;out.innerHTML="";
+    // stream by revealing characters but keep tags intact: split into tokens
+    var tokens=html.match(/(<[^>]+>|[^<]+)/g)||[];
+    var buf="",ti=0,ci=0;
+    typing=setInterval(function(){
+      if(ti>=tokens.length){clearInterval(typing);out.innerHTML=buf;return;}
+      var tok=tokens[ti];
+      if(tok[0]==="<"){buf+=tok;ti++;}
+      else{ buf+=tok[ci++]; if(ci>=tok.length){ti++;ci=0;} }
+      out.innerHTML=buf+'<span class="caret"></span>';
+    },7);
+  }
+  function go(){
+    var t=(tick.value||"").trim().toUpperCase().replace(/[^A-Z]/g,"");
+    tick.value=t;
+    run.disabled=true;meta.innerHTML="";out.textContent="fetchingâ€¦";
+    var latency=(120+Math.floor(( (t.charCodeAt(0)||65)*7 )%180));
+    setTimeout(function(){
+      var json=buildJSON(t);
+      if(!json){
+        meta.innerHTML='<span style="color:var(--sell)">â— 200 OK</span> Â· '+latency+'ms';
+        stream('{\n  <span class="k">"ticker"</span>: <span class="s">"'+esc(t||"?")+'"</span>,\n  <span class="k">"note"</span>: <span class="s">"Live sample covers AAPL, MSFT, NVDA, TSLA. Your API key unlocks all 20M+ filings."</span>\n}');
+      }else{
+        meta.innerHTML='<span class="status-ok">200 OK</span> Â· '+latency+'ms Â· application/json';
+        stream(json);
+      }
+      run.disabled=false;
+    },420);
+  }
+  run.addEventListener("click",go);
+  tick.addEventListener("keydown",function(e){if(e.key==="Enter")go();});
+  go();
+})();
+</script>
+
+</body>
+</html>
